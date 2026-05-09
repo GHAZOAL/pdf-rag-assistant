@@ -1,35 +1,40 @@
-# 📚 PDF RAG Assistant
+# PDF RAG Evaluation API
 
-This project is a Retrieval-Augmented Generation (RAG) system that allows users to ask questions over multiple PDF files using AI.
+A Retrieval-Augmented Generation (RAG) system for answering questions from PDF documents using semantic search, FAISS vector database, FastAPI, and local LLMs.
 
----
+## Features
 
-## 🚀 Features
-- Multi-PDF support
-- Smart text chunking
-- Vector search using FAISS
-- SentenceTransformer embeddings
-- Local LLM via Ollama
-- Simple Streamlit UI
+- PDF Question Answering
+- Semantic Search
+- FAISS Vector Database
+- FastAPI Backend
+- Evaluation Endpoint
+- Hallucination Risk Detection
+- Confidence and Relevance Scoring
+- Local LLM Integration (Ollama + Mistral)
 
----
+## Tech Stack
 
-## 🧠 How it works
-PDF → Text Chunking → Embedding → Vector DB (FAISS) → Retrieval → LLM → Answer Generation
-
----
-
-## 🛠️ Tech Stack
 - Python
+- FastAPI
 - Streamlit
 - FAISS
-- SentenceTransformers
+- Sentence Transformers
 - Ollama
+- Mistral
 
----
+## API Endpoints
 
-## ▶️ How to run
+### Ask Questions
+POST `/ask`
 
-1. Install dependencies:
+### Evaluate Responses
+POST `/evaluate`
+
+## Run Locally
+
+```bash
+pip install -r requirements.txt
+python -m uvicorn main:app --reload
 ```bash
 pip install -r requirements.txt
