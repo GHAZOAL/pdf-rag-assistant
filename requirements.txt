@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+streamlit
+faiss-cpu
+numpy
+requests
+pypdf
+sentence-transformers
+torch
