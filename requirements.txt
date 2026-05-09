@@ -1,9 +1,0 @@
-streamlit
-openai
-faiss-cpu
-sentence-transformers
-pypdf
-numpy
-pandas
-tqdm
-ollama
