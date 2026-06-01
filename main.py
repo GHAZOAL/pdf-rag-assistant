@@ -1,22 +1,29 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
+from typing import List
+import os
 
 from src.utils import (
     load_data,
+    save_data,
+    build_index,
     search_all,
     generate_answer
 )
 
 app = FastAPI(
-    title="RAG Evaluation API",
-    description="PDF Question Answering API using RAG + Ollama",
-    version="1.0"
+    title="RAG Assistant API",
+    description="Dynamic PDF RAG System",
+    version="2.0"
 )
 
 # -------------------------
-# LOAD RAG DATABASE
+# LOAD DATABASE
 # -------------------------
 index_dict = load_data()
+
+if index_dict is None:
+    index_dict = {}
 
 
 # -------------------------
@@ -32,7 +39,49 @@ class Question(BaseModel):
 @app.get("/")
 def home():
     return {
-        "message": "RAG API is running"
+        "message": "RAG Assistant API is running"
+    }
+
+
+# -------------------------
+# UPLOAD PDF
+# -------------------------
+@app.post("/upload_pdf")
+def upload_pdf(files: List[UploadFile] = File(...)):
+
+    global index_dict
+
+    uploaded = []
+
+    os.makedirs("data", exist_ok=True)
+
+    for file in files:
+
+        path = os.path.join("data", file.filename)
+
+        with open(path, "wb") as f:
+            f.write(file.file.read())
+
+        uploaded.append(file.filename)
+
+    # rebuild index
+    pdf_files = []
+
+    for filename in os.listdir("data"):
+
+        if filename.endswith(".pdf"):
+
+            pdf_files.append(
+                open(os.path.join("data", filename), "rb")
+            )
+
+    index_dict = build_index(pdf_files)
+
+    save_data(index_dict)
+
+    return {
+        "uploaded_pdfs": uploaded,
+        "message": "PDFs uploaded and indexed successfully"
     }
 
 
@@ -44,7 +93,7 @@ def ask(q: Question):
 
     if not index_dict:
         return {
-            "error": "No RAG database found"
+            "error": "No PDFs uploaded"
         }
 
     results = search_all(
@@ -65,14 +114,14 @@ def ask(q: Question):
 
 
 # -------------------------
-# EVALUATE ANSWER QUALITY
+# EVALUATE
 # -------------------------
 @app.post("/evaluate")
 def evaluate(q: Question):
 
     if not index_dict:
         return {
-            "error": "No RAG database found"
+            "error": "No PDFs uploaded"
         }
 
     results = search_all(
@@ -80,19 +129,15 @@ def evaluate(q: Question):
         query=q.question
     )
 
-    # number of retrieved chunks
     retrieved_chunks = len(results)
 
-    # relevance score
     relevance_score = min(retrieved_chunks / 3, 1.0)
 
-    # hallucination estimation
     hallucination_risk = False
 
     if retrieved_chunks == 0:
         hallucination_risk = True
 
-    # confidence score
     confidence_score = round(relevance_score * 100, 2)
 
     return {
