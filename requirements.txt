@@ -1,9 +1,11 @@
-fastapi
-uvicorn
 streamlit
+pymupdf
+sentence-transformers
 faiss-cpu
 numpy
-requests
-pypdf
-sentence-transformers
+pandas
 torch
+transformers
+scikit-learn
+langchain
+langchain-community
